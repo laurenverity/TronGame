@@ -1,0 +1,60 @@
+package tron;
+
+import java.awt.BasicStroke;
+import java.awt.Graphics2D;
+import java.awt.Stroke;
+import java.io.Serializable;
+
+import tron.lineProperties.direction;
+
+
+public class Line2DOverRide implements Serializable {
+	
+/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+//I had to override Line2D because its methods did not include a way to draw it from an arraylist
+	
+	private int x1;
+	private int x2;
+	private int y1;
+	private int y2;
+
+	
+	public Line2DOverRide(int x, int y, int x1, int y1) {
+		this.x1 = x;
+		this.y1 = y;
+		this.x2 = x1;
+		this.y2 = y1;
+	}
+
+	public int getX1() {
+		return x1;
+	}
+
+	public int getY1() {
+		return y1;
+	}
+	
+	public void drawLine2DOverRide(Graphics2D g2D, int x, int y, int x1, int y1) {
+		Stroke stroke = new BasicStroke(10);
+		g2D.setStroke(stroke);
+		g2D.drawLine(x,y,x1,y1);
+	}
+
+	public int getX2() {
+		return x2;
+	}
+
+	public int getY2() {
+		return y2;
+	}
+
+	@Override
+	public String toString() {
+		return "Line2DOverRide [x1=" + x1 + ", y1=" + y1 + ", x2=" + x2 + ", y2=" + y2 + "]";
+	}
+
+}
