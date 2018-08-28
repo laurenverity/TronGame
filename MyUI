@@ -1,0 +1,62 @@
+package tron;
+
+import java.awt.BorderLayout;
+
+import java.awt.Color;
+
+import javax.swing.JFrame;
+
+import gameNet.GameNet_UserInterface;
+import gameNet.GamePlayer;
+
+
+public class MyUserInterface extends JFrame implements GameNet_UserInterface{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	GamePlayer game;
+	MyGameInput myGameInput = new MyGameInput();
+	String myName;
+	MyGame mygame = null;
+	Arena arena = new Arena();
+
+	@Override
+	public void receivedMessage(Object objectReceived) {
+		MyGameOutput myGameOutput = (MyGameOutput)objectReceived;
+		mygame = myGameOutput.myGame;
+		arena.newScreen(mygame);
+	}
+	
+	public void startUserInterface(GamePlayer gamePlayer) {
+		GamePlayer myGamePlayer = gamePlayer; 
+		myGameInput.setName(myGamePlayer.getPlayerName());
+		myGamePlayer.sendMessage(myGameInput);
+		arena.setGamePlayer(gamePlayer);
+	}
+	
+	public MyUserInterface() {
+		setSize(800,600);
+		setVisible(true);
+		setResizable(false);
+		myLayout();
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+	}
+	
+	private void myLayout(){
+		setLayout(new BorderLayout());
+		arena.setBackground(Color.black);
+		add(arena,BorderLayout.CENTER);
+		arena.setVisible(true);
+		arena.setSize(800,600);
+		arena.requestFocus();		
+	}
+	
+	
+}
+
+
+
+	
+
