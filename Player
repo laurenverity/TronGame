@@ -1,0 +1,200 @@
+package tron;
+
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Random;
+
+
+
+class lineProperties implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	direction d;
+	
+	public lineProperties(direction d) {
+		this.d = d;
+	}
+	
+	public enum direction {North, South, East, West};
+
+}
+
+public class Player implements Serializable {
+		
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	public Color player1Color;
+	public Color player2Color;
+			
+	public ArrayList<Line2DOverRide> player1 = new ArrayList<Line2DOverRide>();
+	public ArrayList<Line2DOverRide> player2 = new ArrayList<Line2DOverRide>();
+	public boolean[][]collision = new boolean[40][30];
+
+	int velocityX, velocityY;
+	
+	boolean collisionFlag = false;
+	
+	public Player() {
+		velocityX = 20;
+		velocityY =20;
+	}
+		
+	//generates a random starting line for players
+	public Line2DOverRide getRandomStartingPoint() {
+		int x = randomNumberInRange(2,34);
+		int y = randomNumberInRange(2,29);	
+		Line2DOverRide l = new Line2DOverRide(x,y,x,y);
+		return l;
+	}
+	
+	//gets a random location for each player
+	public int randomNumberInRange(int x, int y) {
+		Random rand = new Random();
+		return rand.nextInt(Math.abs(((x-y)+1)+x)*20);
+	}
+	
+	//gets a random color for each player
+	public Color getRandomColor() {
+		Random rand = new Random();
+		float r = rand.nextFloat();
+		float g = rand.nextFloat();
+		float b = rand.nextFloat();
+		Color randomColor = new Color(r,g,b);
+		return randomColor;
+		}
+	
+	//checks to see if the player is within the arena boundary
+	 public boolean isInBounds(int clientIndex, Line2DOverRide newline) {
+		boolean inBounds=true;
+		 int x2 = newline.getX2();
+		 int y2 = newline.getY2();
+		 if(x2<20&&x2>780 || y2>580 && y2<20){
+		 inBounds= false;
+		 System.out.println("out of bounds");
+		 }
+		 return inBounds;
+		}
+	 
+	 //moves the player, called in MyGame using the keypress method from MyUserInterface
+	 public void move(Player p, lineProperties.direction d, int clientIndex) { 
+		 if(clientIndex<=1) {
+				 Line2DOverRide previousLine = player1.get(player1.size()-1);
+					int previousX=previousLine.getX2();
+					int previousY=previousLine.getY2();
+					int endX=0;
+					int endY=0;	
+					switch(d) {
+						case North:
+							endY = previousY-p.velocityY;
+							endX=previousX;
+							break;
+						case East:
+							endX = previousX+p.velocityX;
+							endY = previousY;
+							break;
+						case South:
+							endY = previousY+p.velocityY;
+							endX = previousX;
+							break;
+						case West:
+							endX = previousX-p.velocityX;
+							endY = previousY;
+							break;
+						default:
+							System.out.println("Wrong key, try again");
+							break;
+						}
+						Line2DOverRide newline = new Line2DOverRide(previousX, previousY, endX,endY);
+						
+						if(p.isInBounds(clientIndex,newline)&&collision(newline)==false) {
+							player1.add(newline);
+							collision[previousX/20][previousY/20] = true;
+							collision[endX/20][endY/20] = true;
+						}
+						else {
+							p.velocityX = 0;
+							p.velocityY = 0;
+						}
+		 }
+		 else {
+				 Line2DOverRide previousLine = player2.get(player2.size()-1);
+					
+					int previousX=previousLine.getX2();
+					int previousY=previousLine.getY2();
+					int endX=0;
+					int endY=0;		
+						switch(d) {
+						case North:
+							endY = previousY-p.velocityY;
+							endX=previousX;
+							break;
+						case East:
+							endX = previousX+p.velocityX;
+							endY = previousY;
+							break;
+						case South:
+							endY = previousY+p.velocityY;
+							endX = previousX;
+							break;
+						case West:
+							endX = previousX-p.velocityX;
+							endY = previousY;
+							break;
+						default:
+							System.out.println("Wrong key, try again");
+							break;
+						}
+						Line2DOverRide newline = new Line2DOverRide(previousX, previousY, endX,endY);
+						System.out.println(collisionFlag);
+						if(p.isInBounds(clientIndex,newline)&&collision(newline)==false) {
+							collision[previousX/20][previousY/20] = true;
+							collision[endX/20][endY/20] = true;
+						player2.add(newline);
+						}
+						else {
+							p.velocityX = 0;
+							p.velocityY = 0;
+						}
+		 }
+		  
+		}
+	 
+	//resets the board after a collision
+	public void reset() {
+		 player1.clear();
+		 player2.clear();
+		 for(int i = 0; i<collision.length; i++) {
+			 for(int j = 0; j<collision[i].length; j++) {
+			 collision[i][j] = false;
+			 }
+		}
+		 collisionFlag = false;
+		 velocityX = 20; 
+		 velocityY = 20;
+	 }
+	 
+	//checks to see if the board is returning a true value at a tile and returns a flag
+	 public boolean collision(Line2DOverRide l) {
+		int x2 = l.getX2();
+		int y2 = l.getY2();
+		if (collision[x2/20][y2/20]) {
+			collisionFlag = true;
+		}
+		else if(x2/20==0||x2/20==39||y2/20==0||y2/20==29) {
+			collisionFlag = true;
+		}
+		else
+			collisionFlag = false;
+		return collisionFlag;
+	 }
+	
+}
