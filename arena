@@ -1,0 +1,123 @@
+package tron;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Timer;
+
+import javax.swing.JPanel;
+
+import gameNet.GamePlayer;
+
+public class Arena extends JPanel implements Serializable {
+
+	MyGame mygame = null;
+	Dimension screenDimension = null;
+	GamePlayer gameplayer = null;
+	MyGameInput mygameinput = new MyGameInput();
+	Image offScreenImage = null;
+
+	
+	private static final long serialVersionUID = 1L;
+
+	 Arena() {
+		keyPress key = new keyPress();
+		addKeyListener(key);
+	}
+
+	public void setGamePlayer(GamePlayer g) {
+		gameplayer = g;
+		mygameinput.setName(gameplayer.getName());	
+	}
+	
+	//creates a new screen
+	public void newScreen(MyGame mygame) {
+		this.mygame = mygame;
+		repaint();
+	}
+	
+		 public void paint(Graphics screen) {
+			 super.paint(screen);
+			 Graphics2D g2 = (Graphics2D)screen;
+			super.paint(g2);
+			//drawing the Arena border
+					
+			g2.setColor(Color.blue);
+			g2.setStroke(new BasicStroke(20));
+			g2.drawLine(0, 10, 800, 10);//top
+			g2.drawLine(790, 0, 790, 600);//right
+			g2.drawLine(0,580,800,580);//bottom
+			g2.drawLine(5, 20, 5, 800);//left
+	
+			g2.setColor(Color.blue);
+			if(mygameinput.command==3) {
+			g2.drawString("Welcome to Tron!" ,325,300);
+			g2.drawString("To play, login and then press arrow keys to move your player.", 200, 320);
+			}
+			
+			if(!(mygame==null)) {
+			drawPlayerArray((Graphics2D) screen);
+			if(mygame.p.collisionFlag==true) {
+				g2.setColor(Color.blue);
+				g2.drawString("COLLISION! Press space bar to reset.", 300, 300);
+				}
+			
+			}
+		
+		 }
+
+		 //draws the arrays
+		 public void drawPlayerArray(Graphics2D g) {
+			 ArrayList<Line2DOverRide> temp = mygame.p.player1;
+			 ArrayList<Line2DOverRide> temp2 = mygame.p.player2;
+				for(int i=0; i<=temp.size()-1; i++) {
+					g.setColor(mygame.p.player1Color);
+					Line2DOverRide r = temp.get(i);
+					r.drawLine2DOverRide(g, r.getX1(), r.getY1(), r.getX2(), r.getY2());
+				}
+				for(int i=0; i<=temp2.size()-1; i++) {
+					g.setColor(mygame.p.player2Color);
+					Line2DOverRide r = temp2.get(i);
+					r.drawLine2DOverRide(g, r.getX1(), r.getY1(), r.getX2(), r.getY2());
+				}
+		}
+		
+	
+	class keyPress extends KeyAdapter{
+
+		public void keyPressed(KeyEvent e) {
+			mygameinput.setCommand(mygameinput.BUTTONPRESSED);
+			int key = e.getKeyCode();
+			//get key input and set player direction accordingly
+			switch(key) {
+			case KeyEvent.VK_UP:
+				mygameinput.setDirection(lineProperties.direction.North);
+				break;
+			case KeyEvent.VK_DOWN:
+				mygameinput.setDirection(lineProperties.direction.South);
+				break;
+			case KeyEvent.VK_RIGHT:
+				mygameinput.setDirection(lineProperties.direction.East);
+				break;
+			case KeyEvent.VK_LEFT:
+				mygameinput.setDirection(lineProperties.direction.West);
+				break;
+			case KeyEvent.VK_SPACE:
+				mygameinput.setCommand(mygameinput.RESET);
+				break;
+			default:
+				break;	
+			}
+			gameplayer.sendMessage(mygameinput);
+		}
+		
+	}
+}
